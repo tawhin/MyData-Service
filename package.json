@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tawhin/MyTasks.git"
+    "url": "git+https://github.com/tawhin/MyData.git"
   },
   "keywords": [
     "REST",
@@ -20,9 +20,9 @@
   "author": "Trevor Whinmill",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tawhin/MyTasks/issues"
+    "url": "https://github.com/tawhin/MyData.git"
   },
-  "homepage": "https://github.com/tawhin/MyTasks#readme",
+  "homepage": "https://github.com/tawhin/MyDatas#readme",
   "dependencies": {
     "express": "^4.17.1",
     "jsdoc": "^3.6.6"
