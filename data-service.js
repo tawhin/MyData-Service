@@ -17,6 +17,17 @@ class DataService {
 
     /* vv Register Express route handlers vv */
 
+    // Set our CORS policy for any origin (dev only)
+    this.webServer.use((req, res, next) => {
+      res.append("Access-Control-Allow-Origin", "*");
+      res.append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+      res.append(
+        "Access-Control-Allow-Headers",
+        "content-type,access-control-allow-origin"
+      );
+      next();
+    });
+
     this.webServer.get("/dataset", (req, res) => this.getDataset(res));
 
     // We use post here as we only know the url of the factory which will create the task (rather than url of the specific task to create.)
@@ -32,24 +43,6 @@ class DataService {
     this.webServer.delete(`/data/:${dataIdParam}`, (req, res) =>
       this.deleteData(req, res)
     );
-
-    this.webServer.options("/data", (req, res) => {
-      console.log("Options request received");
-      console.log(req.headers);
-      res.append("Access-Control-Allow-Origin", req.headers.origin);
-      res.append(
-        "Access-Control-Allow-Methods",
-        req.headers["access-control-request-method"]
-      );
-      res.append(
-        "Access-Control-Allow-Headers",
-        req.headers["access-control-request-headers"]
-      );
-      console.log(`response: ${res.getHeader("Access-Control-Allow-Origin")}`);
-      console.log(`response: ${res.getHeader("Access-Control-Allow-Methods")}`);
-      console.log(`response: ${res.getHeader("Access-Control-Allow-Headers")}`);
-      res.sendStatus(200);
-    });
   }
 
   /**
@@ -59,7 +52,7 @@ class DataService {
    */
   getDataset(res) {
     console.log("Getting all data objects...");
-    this.archiver.list((err, dataset) => this.response(err, dataset, res));
+    this.archiver.list((err, dataset) => this.response(err, res, dataset));
   }
 
   /**
@@ -89,7 +82,7 @@ class DataService {
       // request is of the expected type 'application/json'
       console.log("Creating new data object...");
       this.archiver.create(req.body, (err, data) =>
-        this.response(err, data, res)
+        this.response(err, res, data)
       );
     }
   }
@@ -104,7 +97,7 @@ class DataService {
     if (this.verifyJsonRequest(req, res)) {
       console.log("Updating the dataset...");
       this.archiver.insert(req.params[dataIdParam], req.body, (err, data) =>
-        this.response(err, data, res)
+        this.response(err, res, data)
       );
     }
   }
@@ -134,18 +127,18 @@ class DataService {
    * Utilise the specified Express response instance to send a 'application/json' response back to the client.
    * @function response
    * @param {Error} err - Error instances generated when processing the Express request object
-   * @param {Request} req - Express request object instance
    * @param {Response} res - Express response object instance
+   * @param {Object} json - Data to insert
    */
-  response(err, data, res) {
+  response(err, res, json) {
+    //res.append("Access-Control-Allow-Origin", "*");
     if (err) {
       // Sets the http status code to 500 and returns "Internal server error" within the response body
       res.sendStatus(500);
     } else {
-      res.append("Access-Control-Allow-Origin", "*");
       // Sends a JSON response, with the correct content type (application/json).
       // The object parameter is converted to a JSON string using JSON.stringify()
-      res.json(data);
+      res.json(json);
     }
   }
 
