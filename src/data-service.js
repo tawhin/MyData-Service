@@ -7,6 +7,16 @@ const webServer = express();
 webServer.use(express.json()); // for parsing application/json
 /* vv Register Express route handlers vv */
 
+webServer.use((req, res, next) => {
+  res.append("Access-Control-Allow-Origin", "*");
+  res.append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.append(
+    "Access-Control-Allow-Headers",
+    "content-type,access-control-allow-origin"
+  );
+  next();
+});
+
 webServer.get(`/:${namespaceParam}/dataset`, (req, res) =>
   getDataset(req, res)
 );
