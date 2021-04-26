@@ -26,6 +26,7 @@
   "homepage": "https://github.com/tawhin/MyDatas#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "jsdoc": "^3.6.6"
+    "jsdoc": "^3.6.6",
+    "mongodb": "^3.6.6"
   }
 }
