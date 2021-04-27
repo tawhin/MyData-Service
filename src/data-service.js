@@ -1,3 +1,5 @@
+const serverConfig = require("../config/server");
+const e = require("express");
 const express = require("express");
 
 const dataIdParam = "dataId";
@@ -35,17 +37,17 @@ webServer.delete(`/:${namespaceParam}/data/:${dataIdParam}`, (req, res) =>
   deleteData(req, res)
 );
 
-let archiver = null;
+let repository = null;
 
 /**
  * Process a request to get all data and response using the specified Express response instance.
  * @function getDataset
  * @param {Request} req - Express request object instance
- * @param {Response} res - Express response object instance
+ * @param {Response} res - Express response object instanc
  */
 const getDataset = (req, res) => {
   console.log(`Getting all data objects ${req.params[namespaceParam]}...`);
-  archiver.read(req.params[namespaceParam], (err, dataset) =>
+  repository.read(req.params[namespaceParam], (err, dataset) =>
     response(err, dataset, res)
   );
 };
@@ -78,8 +80,22 @@ const postData = (req, res) => {
     console.log(
       `Creating new data object within dataset ${req.params[namespaceParam]}...`
     );
-    archiver.create(req.params[namespaceParam], req.body, (err, data) =>
-      response(err, data, res)
+    repository.create(
+      req.params[namespaceParam],
+      req.body,
+      (err, identifier) => {
+        if (err) {
+          res.status(500).send(err.message);
+        } else {
+          // We have created the resource, add the Location URI header.
+          res.append(
+            "Location",
+            `http://${serverConfig.host}/data/${identifier}`
+          );
+          // Status is 201 (Created)
+          res.sendStatus(201);
+        }
+      }
     );
   }
 };
@@ -93,11 +109,18 @@ const postData = (req, res) => {
 const putData = (req, res) => {
   if (verifyJsonRequest(req, res)) {
     console.log(`Updating the ${req.params[namespaceParam]} dataset...`);
-    archiver.update(
+    repository.update(
       req.params[namespaceParam],
       req.params[dataIdParam],
       req.body,
-      (err, data) => response(err, data, res)
+      (err, created) => {
+        if (err) {
+          res.status(500).send(err.message);
+        } else {
+          // In accordance with the HTTP Put spec, return 201 (Created) or 200 (modified)
+          res.sendStatus(created ? 201 : 200);
+        }
+      }
     );
   }
 };
@@ -113,16 +136,17 @@ const deleteData = (req, res) => {
     `Delete data object with id:${req.params[dataIdParam]} in dataset ${req.params[namespaceParam]}`
   );
   // Note the check is performed synchronously here
-  archiver.delete(
+  repository.delete(
     req.params[namespaceParam],
     req.params[dataIdParam],
-    (err, status) => {
+    (err, deleted) => {
       if (err) {
-        // There has been an error whilst attempting to delete the data.
-        res.sendStatus(500);
+        res.status(500).send(err.message);
+      } else if (!deleted) {
+        // If deleted is false without an error, then the specified data id was not found.
+        res.status(404).send(`Object '${req.params[dataIdParam]}' not found`);
       } else {
-        // If the status.deleted is false then the specified data id was not found.
-        res.sendStatus(status.deleted ? 200 : 404);
+        res.sendStatus(200);
       }
     }
   );
@@ -137,8 +161,9 @@ const deleteData = (req, res) => {
  */
 const response = (err, data, res) => {
   if (err) {
-    // Sets the http status code to 500 and returns "Internal server error" within the response body
-    res.sendStatus(500);
+    // Sets the http status code to 500 and returns the error message within the response body
+    res.statusText = err.message;
+    res.status(500).send(err.message);
   } else {
     // Sends a JSON response, with the correct content type (application/json).
     // The object parameter is converted to a JSON string using JSON.stringify()
@@ -149,12 +174,14 @@ const response = (err, data, res) => {
 /**
  * Start the data web service on the specified port.
  * @function start
- * @param {object} useArchive - Archive object to use for persistence storage
+ * @param {object} useRepository - Repository object to use for persistence storage
  * @param {number} port - Specified service port
  */
-module.exports.start = (port, useArchiver) => {
-  archiver = useArchiver;
-  webServer.listen(port, () => {
-    console.log(`MyData service instance is running on port ${port}.....`);
+module.exports.start = (useRepository) => {
+  repository = useRepository;
+  webServer.listen(serverConfig.port, () => {
+    console.log(
+      `MyData service instance is running on port ${serverConfig.port}.....`
+    );
   });
 };

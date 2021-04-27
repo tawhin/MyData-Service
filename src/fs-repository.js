@@ -19,6 +19,8 @@ const fs = require("fs");
  *  2.  Use with Node Clustering and multi-process operation, performance overhead of all instances accessing the same file in the local filesystem.
  */
 
+const idField = "_id";
+
 /**
  * Provides a promise to load a dataset from an existing local file.
  * If there is no file then the promise resolves with an empty dataset.
@@ -76,7 +78,7 @@ const getDataset = async (namespace, callback) => {
  * @param {function(Error,object):void} callback - Synchronous callback
  */
 const list = (namespace, callback) => {
-  getDataset(namespace, (dataset) => callback(null, dataset));
+  getDataset(namespace, (dataset) => callback(null, Object.values(dataset)));
 };
 
 /**
@@ -98,7 +100,9 @@ const create = (namespace, data, callback) => {
         return acc;
       }, "0")
     );
-    insert(namespace, dataset, ++idCursor, data, callback);
+    insert(namespace, dataset, ++idCursor, data, (err, created) =>
+      callback(err, idCursor)
+    );
   });
 };
 
@@ -127,12 +131,13 @@ const update = (namespace, id, data, callback) => {
  * @param {function(Error,object):void} callback - Callback with operation result.
  */
 const insert = (namespace, dataset, id, data, callback) => {
+  let created = dataset.hasOwnProperty(id) == false;
   // Add the id to the data object, this provides exposure of the id to the calling client module.
-  data["id"] = id;
-  dataset[data.id] = data;
+  data[idField] = id;
+  dataset[id] = data;
 
   // Save is async wait method, so this is an asynchronous save which doesn't block the event loop.
-  save(namespace, dataset, (saveErr) => callback(saveErr, data));
+  save(namespace, dataset, (saveErr) => callback(saveErr, created));
 };
 
 /**
@@ -189,10 +194,6 @@ const save = async (namespace, dataset, callback) => {
  * @param {function(Error,object):void} callback - Asynchronous callback when operation completes
  */
 const remove = (namespace, dataId, callback) => {
-  // Initialise status object to not deleted until operation completed successfully.
-  let status = {
-    deleted: false,
-  };
   getDataset(namespace, (dataset) => {
     if (dataId in dataset) {
       // cache a function scope copy of the data object (in-case we need to restore it)
@@ -201,14 +202,10 @@ const remove = (namespace, dataId, callback) => {
 
       // Asynchronous attempt to persist the new dataset cache with the removed data object.
       save(namespace, dataset, (err) => {
-        if (!err) {
-          // successfully deleted within the archive file, confirm this in the status.
-          status.deleted = true;
-        }
-        callback(err, status);
+        callback(err, !err ? true : false);
       });
     } else {
-      callback(null, status);
+      callback(null, false);
     }
   });
 };

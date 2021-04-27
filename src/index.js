@@ -1,6 +1,6 @@
-const fsArchiver = require("./fs-data-archive");
-const dataService = require("./data-service");
 const serverConfig = require("../config/server");
+const repository = require(`./${serverConfig.repository}`);
+const dataService = require("./data-service");
 
 /*
  * Use an Index.js to control how we launch web service.
@@ -9,4 +9,4 @@ const serverConfig = require("../config/server");
  * Watch this space for an implementation example...
  */
 
-dataService.start(serverConfig.port, fsArchiver);
+dataService.start(repository);
