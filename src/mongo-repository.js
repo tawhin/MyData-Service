@@ -36,11 +36,10 @@ const perform = async (collection, operation, callback) => {
   // Asynchronous callback.
   callback(error, result);
 };
+
 /**
- *
- * Create a repository entry from the specified data object, in the specified collection.  The object will be given a
- * unique id property and inserted into the dataset.  The complete dataset will then be
- * persisted to a file in the local file system.
+ * Create a document from the specified data object, into the specified collection.  The document will be given a
+ * unique id property when inserted into the collection.
  * @function create
  * @param {string} collection - Target Mongo DB collection.
  * @param {object} data - Data to be added to the collection
@@ -66,8 +65,7 @@ const create = (collection, data, callback) => {
 };
 
 /**
- * Provide complete list of MongoDB documents to the specified callback function.
- * The callback receives an error object if the connection to the MongoClient fails.
+ * Provide complete list of documents within the specified collection.
  * @function list
  * @param {string} collection - Addressed Mongo DB collection.
  * @param {function(Error,object):void} callback - Asynchronous callback
@@ -92,8 +90,8 @@ const list = (collection, callback) => {
 };
 
 /**
- * Update the specified identifier with the specified data object within the
- * specified MongoDb collection.
+ * Update the document correlating to the specified identifier with the specified data object within the
+ * specified collection.
  *
  * @param {string} collection - Addressed Mongo DB collection.
  * @param {string} id - Specified document identifier
@@ -125,7 +123,7 @@ const update = async (collection, id, data, callback) => {
 };
 
 /**
- * Attempt to remove the specified document id from the specified MongoDB collection.
+ * Attempt to remove document against the specified identifier from the specified MongoDB collection.
  * @function remove
  * @param {string} collection - Addressed Mongo DB collection.
  * @param {string} id - Specified document identifier
