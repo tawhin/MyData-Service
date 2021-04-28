@@ -1,6 +1,6 @@
-const serverConfig = require("../config/server");
-const repository = require(`./${serverConfig.repository}`);
-const dataService = require("./data-service");
+const serverConfig = require("./config/server");
+const repository = require(`./repository/${serverConfig.repository}`);
+const dataService = require("./service/data-service");
 
 /*
  * Use an Index.js to control how we launch web service.

@@ -217,7 +217,7 @@ const remove = (namespace, dataId, callback) => {
  */
 const archiveFile = (namespace) => {
   let path =
-    config.output == "default" ? `/${__dirname}/../data` : config.output;
+    config.output == "default" ? `/${__dirname}/../../data` : config.output;
 
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);
