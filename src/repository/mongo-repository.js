@@ -1,5 +1,5 @@
 const { MongoClient, ObjectID } = require("mongodb");
-const config = require("../config/mongodb");
+const config = require("../config/mongo-repository");
 
 /**
  * Perform the specified action on the specified collection through a MongoDb client.
@@ -9,7 +9,7 @@ const config = require("../config/mongodb");
  * @param {function(Error,object):void} callback - Asynchronous callback once the perform operation completes.
  */
 const perform = async (collection, operation, callback) => {
-  const client = new MongoClient(config.url);
+  const client = new MongoClient(config.location);
   let result = null;
   let error = null;
 
@@ -25,7 +25,7 @@ const perform = async (collection, operation, callback) => {
     }
   } catch (err) {
     console.log(
-      `Failed connect to mongodb url: ${config.url}, db: ${config.dbName}, collection: ${namespace}`
+      `Failed connect to mongodb url: ${config.location}, db: ${config.dbName}, collection: ${namespace}`
     );
     error = err;
   } finally {

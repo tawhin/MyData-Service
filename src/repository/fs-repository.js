@@ -1,7 +1,7 @@
 const { throws } = require("assert");
 const { timeStamp } = require("console");
 const EventEmitter = require("events");
-const config = require("../config/fs-data");
+const config = require("../config/fs-repository");
 const fs = require("fs");
 
 /**
@@ -217,7 +217,7 @@ const remove = (namespace, dataId, callback) => {
  */
 const archiveFile = (namespace) => {
   let path =
-    config.output == "default" ? `/${__dirname}/../../data` : config.output;
+    config.location == "default" ? `/${__dirname}/../../data` : config.location;
 
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);

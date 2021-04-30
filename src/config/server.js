@@ -1,5 +1,5 @@
 module.exports = {
-  repository: "mongo-repository",
-  host: "localhost",
-  port: 4242,
+  repository: process.env.REPOSITORY || "mongo-repository",
+  host: process.env.HOST || "localhost",
+  port: process.env.PORT || 4242,
 };
