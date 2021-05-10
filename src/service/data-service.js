@@ -1,4 +1,5 @@
 const serverConfig = require("../config/server");
+const mongoConfig = require("../config/mongo-repository")
 const e = require("express");
 const express = require("express");
 
@@ -17,6 +18,10 @@ webServer.use((req, res, next) => {
     "content-type,access-control-allow-origin"
   );
   next();
+});
+
+webServer.get('/config', (req,res) => {
+    response(null, {...serverConfig,...mongoConfig}, res);
 });
 
 webServer.get(`/:${namespaceParam}/dataset`, (req, res) =>
