@@ -2,9 +2,11 @@ const serverConfig = require("../config/server");
 const mongoConfig = require("../config/mongo-repository")
 const e = require("express");
 const express = require("express");
+const fs = require("fs");
 
 const dataIdParam = "dataId";
 const namespaceParam = "namespace";
+const configParam = "config";
 
 const webServer = express();
 webServer.use(express.json()); // for parsing application/json
@@ -12,7 +14,7 @@ webServer.use(express.json()); // for parsing application/json
 
 webServer.use((req, res, next) => {
   res.append("Access-Control-Allow-Origin", "*");
-  res.append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.append("Access-Control-Allow-Methods", serverConfig.getCors());
   res.append(
     "Access-Control-Allow-Headers",
     "content-type,access-control-allow-origin"
@@ -22,6 +24,19 @@ webServer.use((req, res, next) => {
 
 webServer.get('/config', (req,res) => {
     response(null, {...serverConfig,...mongoConfig}, res);
+});
+
+webServer.get(`/etc/config/:${configParam}`, (req,res) => {
+  fs.readFile(`${serverConfig.configPath}/${req.params[configParam]}`, 'UTF8', (err, fileData) => {
+    if(err) {
+      response(err, null, res);
+    }
+    else {
+      var config = {};
+      config[req.params[configParam]] = fileData.split(',');
+      response(null, config, res);
+    }
+  })  
 });
 
 webServer.get(`/:${namespaceParam}/dataset`, (req, res) =>
