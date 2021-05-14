@@ -1,4 +1,4 @@
-# MyDataService
+# MyData-Service
 
 The implementation offers an example coding reference to supplement up skilling activities within Node.JS, Express and MongoDB.
 This service leverages the Node Express framework to provide a REST API for CRUD operations for Javascript objects within the context of namespace.
