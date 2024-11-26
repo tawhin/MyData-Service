@@ -25,7 +25,7 @@ const perform = async (collection, operation, callback) => {
     }
   } catch (err) {
     console.log(
-      `Failed connect to mongodb url: ${config.location}, db: ${config.dbName}, collection: ${namespace}`
+      `Failed connect to mongodb url: ${config.location}, db: ${config.dbName}, collection: ${collection}`
     );
     error = err;
   } finally {
@@ -70,7 +70,7 @@ const create = (collection, data, callback) => {
  * @param {string} collection - Addressed Mongo DB collection.
  * @param {function(Error,object):void} callback - Asynchronous callback
  */
-const list = (collection, callback) => {
+const list = async (collection, callback) => {
   const operation = (dbCollection) => {
     return new Promise(async (resolve, reject) => {
       try {
