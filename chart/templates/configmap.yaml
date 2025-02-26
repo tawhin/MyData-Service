@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-service-config
+data:
+  REPOSITORY: "{{ .Values.config.repository }}"
+  PORT: "{{ .Values.service.port }}"
+  MONGO_HOST: "{{ .Values.config.mongo_host }}"
+  DB_NAME: "{{ .Values.config.db_name }}"
+  CORS: "{{ .Values.config.cors }}"
